@@ -6,3 +6,5 @@ pandas
 scikit-learn
 PyPDF2
 python-docx
+nltk
+spacy
