@@ -759,6 +759,14 @@ def main():
         )
         
         if uploaded_files:
+            st.write(f"📁 {len(uploaded_files)} file(s) uploaded")
+            
+            # Show file types
+            file_types = {}
+            for file in uploaded_files:
+                file_ext = file.name.split('.')[-1].upper()
+                file_types[file_ext] = file_types.get(file_ext, 0) + 1
+            
             st.write("**File Types:** " + ", ".join([f"{ext}: {count}" for ext, count in file_types.items()]))
             
             # Process documents button
@@ -975,12 +983,4 @@ Answer:""",
             st.metric("File Types", file_types_processed)
 
 if __name__ == "__main__":
-    main()(f"📁 {len(uploaded_files)} file(s) uploaded")
-            
-            # Show file types
-            file_types = {}
-            for file in uploaded_files:
-                file_ext = file.name.split('.')[-1].upper()
-                file_types[file_ext] = file_types.get(file_ext, 0) + 1
-            
-            st.write
+    main()
