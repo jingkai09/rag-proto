@@ -348,18 +348,21 @@ class AdvancedRAG:
             status_text.text(f"Processing {uploaded_file.name}...")
             
             # Extract text based on file type
-            if uploaded_file.type == "application/pdf":
+            file_extension = uploaded_file.name.lower().split('.')[-1]
+            
+            if uploaded_file.type == "application/pdf" or file_extension == 'pdf':
                 text = self.extract_text_from_pdf(uploaded_file)
-            elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+            elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" or file_extension == 'docx':
                 text = self.extract_text_from_docx(uploaded_file)
-            elif uploaded_file.type == "text/plain":
+            elif uploaded_file.type == "text/plain" or file_extension == 'txt':
                 text = str(uploaded_file.read(), "utf-8")
-            elif uploaded_file.type == "text/csv" or uploaded_file.name.endswith('.csv'):
+            elif uploaded_file.type == "text/csv" or file_extension == 'csv':
                 text = self.extract_text_from_csv(uploaded_file, **params)
-            elif uploaded_file.type in ["application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"] or uploaded_file.name.endswith(('.xlsx', '.xls')):
+            elif (uploaded_file.type in ["application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"] 
+                  or file_extension in ['xlsx', 'xls']):
                 text = self.extract_text_from_excel(uploaded_file, **params)
             else:
-                st.warning(f"Unsupported file type: {uploaded_file.type}")
+                st.warning(f"Unsupported file type: {uploaded_file.type} (extension: {file_extension})")
                 continue
             
             if not text.strip():
