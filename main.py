@@ -579,7 +579,7 @@ def main():
     
     # Advanced sidebar configuration
     with st.sidebar:
-        st.header("⚙️ Advanced Configuration")
+        st.header("⚙️ Configuration")
         
         # API Configuration
         st.subheader("🔑 API Settings")
@@ -589,101 +589,33 @@ def main():
             help="Enter your OpenAI API key for response generation"
         )
         
-        # Document Processing Settings
+        # Basic Document Processing Settings
         st.subheader("📄 Document Processing")
-        
-        embedding_model = st.selectbox(
-            "Embedding Model",
-            ["all-MiniLM-L6-v2", "all-mpnet-base-v2", "multi-qa-MiniLM-L6-cos-v1", 
-             "paraphrase-multilingual-MiniLM-L12-v2"],
-            help="Choose the sentence transformer model"
-        )
-        
-        cleaning_level = st.selectbox(
-            "Text Cleaning Level",
-            ["light", "medium", "aggressive"],
-            index=1,
-            help="How aggressively to clean the text"
-        )
-        
-        chunking_strategy = st.selectbox(
-            "Chunking Strategy",
-            ["word_based", "sentence_based", "paragraph_based", "semantic_based"],
-            help="Method for splitting documents into chunks"
-        )
         
         chunk_size = st.slider(
             "Chunk Size",
-            min_value=100,
-            max_value=2000,
+            min_value=200,
+            max_value=1000,
             value=500,
             step=50,
-            help="Size of text chunks (words for word-based, sentences for sentence-based)"
-        )
-        
-        overlap = st.slider(
-            "Chunk Overlap",
-            min_value=0,
-            max_value=200,
-            value=50,
-            help="Overlap between consecutive chunks (word-based only)"
-        )
-        
-        min_chunk_size = st.slider(
-            "Minimum Chunk Size",
-            min_value=10,
-            max_value=200,
-            value=50,
-            help="Minimum size for a chunk to be included"
+            help="Size of text chunks in words"
         )
         
         # CSV/Excel specific settings
         st.subheader("📊 CSV/Excel Settings")
         
         csv_format = st.selectbox(
-            "CSV/Excel Text Format",
-            ["structured", "concatenated", "summary"],
+            "Data Format",
+            ["structured", "summary"],
             help="How to convert tabular data to text"
         )
         
         max_csv_rows = st.slider(
-            "Max CSV Rows",
-            min_value=100,
-            max_value=5000,
+            "Max Rows",
+            min_value=500,
+            max_value=2000,
             value=1000,
-            help="Maximum number of rows to process from CSV/Excel"
-        )
-        
-        excel_sheet = st.text_input(
-            "Excel Sheet Name (optional)",
-            placeholder="Leave empty for all sheets",
-            help="Specific sheet name to process, or leave empty for all sheets"
-        )
-        
-        # TF-IDF Settings
-        st.subheader("🔍 Keyword Search Settings")
-        
-        tfidf_max_features = st.slider(
-            "TF-IDF Max Features",
-            min_value=1000,
-            max_value=20000,
-            value=5000,
-            step=1000,
-            help="Maximum number of TF-IDF features"
-        )
-        
-        ngram_range = st.slider(
-            "N-gram Range (max)",
-            min_value=1,
-            max_value=3,
-            value=2,
-            help="Maximum n-gram size for TF-IDF"
-        )
-        
-        remove_stopwords = st.checkbox(
-            "Remove Stopwords",
-            value=True,
-            help="Remove common stopwords from TF-IDF"
+            help="Maximum number of rows to process"
         )
         
         # Search Settings
@@ -695,57 +627,31 @@ def main():
             help="Type of search to perform"
         )
         
-        if search_type == "hybrid":
-            semantic_weight = st.slider(
-                "Semantic Weight",
-                min_value=0.0,
-                max_value=1.0,
-                value=0.7,
-                step=0.1,
-                help="Weight for semantic vs keyword search in hybrid mode"
-            )
-        else:
-            semantic_weight = 0.7
-        
         top_k = st.slider(
-            "Retrieved Chunks",
-            min_value=1,
-            max_value=15,
+            "Number of Results",
+            min_value=3,
+            max_value=10,
             value=5,
             help="Number of relevant chunks to retrieve"
         )
         
         # LLM Settings
-        st.subheader("🤖 LLM Settings")
+        st.subheader("🤖 Response Settings")
         
         model = st.selectbox(
-            "OpenAI Model",
-            ["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo-preview"],
-            help="OpenAI model to use for response generation"
-        )
-        
-        max_tokens = st.slider(
-            "Max Tokens",
-            min_value=100,
-            max_value=2000,
-            value=500,
-            help="Maximum tokens in the response"
+            "Model",
+            ["gpt-3.5-turbo", "gpt-4"],
+            help="OpenAI model to use"
         )
         
         temperature = st.slider(
-            "Temperature",
+            "Creativity",
             min_value=0.0,
-            max_value=2.0,
-            value=0.7,
+            max_value=1.0,
+            value=0.3,
             step=0.1,
-            help="Creativity/randomness of the response"
+            help="Higher values = more creative responses"
         )
-        
-        # Advanced LLM parameters
-        with st.expander("Advanced LLM Parameters"):
-            top_p = st.slider("Top P", 0.0, 1.0, 1.0, 0.1)
-            frequency_penalty = st.slider("Frequency Penalty", -2.0, 2.0, 0.0, 0.1)
-            presence_penalty = st.slider("Presence Penalty", -2.0, 2.0, 0.0, 0.1)
     
     # Main interface
     col1, col2 = st.columns([1, 1])
@@ -774,22 +680,22 @@ def main():
             
             # Process documents button
             if st.button("🔄 Process Documents", type="primary"):
-                with st.spinner("Processing documents with advanced settings..."):
+                with st.spinner("Processing documents..."):
                     processing_params = {
-                        'embedding_model': embedding_model,
-                        'cleaning_level': cleaning_level,
-                        'chunking_strategy': chunking_strategy,
+                        'embedding_model': 'all-MiniLM-L6-v2',  # Default model
+                        'cleaning_level': 'medium',  # Default cleaning
+                        'chunking_strategy': 'word_based',  # Default strategy
                         'chunk_size': chunk_size,
-                        'overlap': overlap,
-                        'min_chunk_size': min_chunk_size,
-                        'tfidf_max_features': tfidf_max_features,
-                        'ngram_range': ngram_range,
-                        'remove_stopwords': remove_stopwords,
+                        'overlap': 50,  # Default overlap
+                        'min_chunk_size': 50,  # Default minimum
+                        'tfidf_max_features': 5000,  # Default features
+                        'ngram_range': 2,  # Default ngram
+                        'remove_stopwords': True,  # Default stopwords
                         'csv_format': csv_format,
                         'excel_format': csv_format,  # Use same format for both
                         'max_csv_rows': max_csv_rows,
                         'max_excel_rows': max_csv_rows,  # Use same limit for both
-                        'excel_sheet': excel_sheet if excel_sheet.strip() else None
+                        'excel_sheet': None  # Process all sheets by default
                     }
                     
                     success = rag.process_documents(uploaded_files, **processing_params)
@@ -814,10 +720,8 @@ def main():
                             {"Metric": "Total Documents", "Value": len(uploaded_files)},
                             {"Metric": "Total Chunks", "Value": len(rag.chunks)},
                             {"Metric": "Total Words", "Value": f"{total_words:,}"},
-                            {"Metric": "Total Characters", "Value": f"{total_chars:,}"},
                             {"Metric": "Avg Chunk Size", "Value": f"{avg_chunk_words:.0f} words"},
-                            {"Metric": "Embedding Model", "Value": embedding_model},
-                            {"Metric": "Chunking Strategy", "Value": chunking_strategy}
+                            {"Metric": "Chunk Size Setting", "Value": f"{chunk_size} words"}
                         ])
                         st.dataframe(stats_df, hide_index=True)
                         
@@ -858,35 +762,11 @@ def main():
                 height=100
             )
             
-            # Custom prompt templates
-            with st.expander("🎨 Custom Prompt Engineering"):
-                system_prompt = st.text_area(
-                    "System Prompt",
-                    value="You are a helpful assistant that answers questions based on provided context. Be accurate, cite sources when possible, and indicate if information is not available in the context. When analyzing tabular data, provide specific insights and summaries.",
-                    height=100
-                )
-                
-                prompt_template = st.text_area(
-                    "User Prompt Template",
-                    value="""Based on the following context, please answer the question. 
-If the answer is not in the context, say so clearly.
-When analyzing data from CSV/Excel files, provide specific insights, trends, and summaries.
-
-Context:
-{context}
-
-Question: {query}
-
-Answer:""",
-                    height=150,
-                    help="Use {context} and {query} as placeholders"
-                )
-            
             if query and st.button("🔍 Search & Answer", type="primary"):
                 with st.spinner("Searching and generating answer..."):
                     # Retrieve relevant chunks
                     search_params = {
-                        'semantic_weight': semantic_weight
+                        'semantic_weight': 0.7  # Default hybrid weight
                     } if search_type == "hybrid" else {}
                     
                     relevant_chunks = rag.retrieve_relevant_chunks(
@@ -898,13 +778,22 @@ Answer:""",
                         generation_params = {
                             'openai_api_key': openai_api_key,
                             'model': model,
-                            'max_tokens': max_tokens,
+                            'max_tokens': 800,  # Default token limit
                             'temperature': temperature,
-                            'top_p': top_p,
-                            'frequency_penalty': frequency_penalty,
-                            'presence_penalty': presence_penalty,
-                            'system_prompt': system_prompt,
-                            'prompt_template': prompt_template
+                            'top_p': 1.0,  # Default value
+                            'frequency_penalty': 0.0,  # Default value
+                            'presence_penalty': 0.0,  # Default value
+                            'system_prompt': "You are a helpful assistant that answers questions based on provided context. Be accurate, cite sources when possible, and indicate if information is not available in the context. When analyzing tabular data, provide specific insights and summaries.",
+                            'prompt_template': """Based on the following context, please answer the question. 
+If the answer is not in the context, say so clearly.
+When analyzing data from CSV/Excel files, provide specific insights, trends, and summaries.
+
+Context:
+{context}
+
+Question: {query}
+
+Answer:"""
                         }
                         
                         response = rag.generate_response(query, relevant_chunks, **generation_params)
